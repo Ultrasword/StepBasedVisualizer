@@ -31,19 +31,24 @@ class StepVisScheduler(threading.Thread):
     def _target(self):
         while self.running:
             time.sleep(self[self.PAUSE_TIME])
+            # print(self._task_queue)
             # run a task
-            if not self._task_queue: continue
-            func, args = self._task_queue.popleft()
-            func(*args)
+            self.run_task()
+        
+    def run_task(self):
+        """Run a task"""
+        if not self._task_queue: return
+        func, args = self._task_queue.popleft()
+        func(*args)
         
     def kill(self):
         """Kill the task scheduler"""
         self.running = False
         super().kill()
 
-    def push_task(self, func, args=()):
+    def push_task(self, target, args=()):
         """Push a task to the queue"""
-        self._task_queue.append((func, args))
+        self._task_queue.append((target, args))
 
     def attempt_join(self):
         """Attempt to join a thread"""
